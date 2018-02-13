@@ -1,9 +1,20 @@
 package com.bobjamin
 
-class AwsResource(val arn: Arn){
+class AwsResource<out T: AwsResource.Info>(val arn: Arn, val info: T){
     data class Arn(val service: String, val region: String, val account: String, val resource: String, val subType: String = "", val subId: String = "", val partition: String = "aws"){
         fun arn() = "arn:$partition:$service:$region:$account:$resource"
         companion object {
+
+            fun from(resourceType: AwsResourceType, region: String, account: String, resourceId: String) =
+                    Arn(
+                            service = resourceType.service.service,
+                            region = if(resourceType.hasRegion) region else "",
+                            account = if(resourceType.hasAccount) account else "",
+                            resource = "${resourceType.resource}${resourceType.arnSeparator}$resourceId",
+                            subType = resourceType.resource,
+                            subId = if(resourceType.resource.isNotEmpty()) resourceId else ""
+                    )
+
             fun from(arn: String): Arn{
                 val args = arn.split(":")
                 val resource = when(args.size){
@@ -28,6 +39,43 @@ class AwsResource(val arn: Arn){
                     resource.contains(':') -> subtype(':')
                     else -> null
                 }
+            }
+        }
+    }
+
+    interface Info
+
+    data class Relationships<out T: Info>(val resource: AwsResource<T>, val relatedArns: List<Arn> = emptyList())
+
+    interface Finder{
+
+        fun findIn(account: String, regions: List<String>): List<Relationships<*>>
+
+        companion object {
+
+            fun <T> clientCall(method: () -> T) = collectAll( { null } ){ method() }
+
+            fun <T> collectAll(nextToken: (tokenized: T) -> String?, method: (nextToken: String?) -> T): List<T> {
+                val results = mutableListOf<T>()
+                    return try{
+                        var result = method(null)
+                        results.add(result)
+                        var token = nextToken(result)
+                        while(token != null){
+                            result = method(token)
+                            results.add(result)
+                            token = nextToken(result)
+                        }
+                        results
+                    }
+                    catch(e: Exception){
+                        System.err.println(e)
+                        if(e.message?.contains("Rate exceeded") == true){
+                            Thread.sleep(4000)
+                            results + collectAll(nextToken, method)
+                        }
+                        else emptyList()
+                    }
             }
         }
     }
