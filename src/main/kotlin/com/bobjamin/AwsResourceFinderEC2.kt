@@ -2,6 +2,8 @@ package com.bobjamin
 
 import com.amazonaws.services.ec2.AmazonEC2
 import com.amazonaws.services.ec2.AmazonEC2Client
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest
+import com.amazonaws.services.ec2.model.DescribeVolumesRequest
 import com.amazonaws.services.ec2.model.Instance
 import com.amazonaws.services.ec2.model.Volume
 
@@ -17,7 +19,7 @@ class AwsResourceFinderEC2(
     fun ec2Resources(region: String, account: String): List<AwsResource.Relationships<EC2Info>>{
         val ec2Client = ec2Client(region)
         return AwsResource.Finder
-                .collectAll( { it.nextToken } ){ ec2Client.describeInstances().withNextToken(it) }
+                .collectAll( { it.nextToken } ){ ec2Client.describeInstances(DescribeInstancesRequest().withNextToken(it)) }
                 .flatMap { it.reservations }
                 .flatMap { it.instances }
                 .filter { it.state.name == "running" || it.state.name == "stopped" }
@@ -31,7 +33,7 @@ class AwsResourceFinderEC2(
     fun ebsResources(region: String, account: String): List<AwsResource.Relationships<EBSInfo>>{
         val ec2Client = ec2Client(region)
         return AwsResource.Finder
-                .collectAll( { it.nextToken } ){ ec2Client.describeVolumes().withNextToken(it) }
+                .collectAll( { it.nextToken } ){ ec2Client.describeVolumes(DescribeVolumesRequest().withNextToken(it)) }
                 .flatMap { it.volumes }
                 .map {
                     val volumeArn = AwsResource.Arn.from(AwsResourceType.VOLUME, region, account, it.volumeId)
