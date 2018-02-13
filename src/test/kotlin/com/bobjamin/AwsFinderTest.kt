@@ -5,6 +5,8 @@ import org.junit.Test
 class AwsFinderTest{
     @Test
     fun test(){
-        AwsResourceFinderEC2().findIn("--", listOf("us-east-1")).forEach{System.out.println(it)}
+        AwsResourceFinderEC2().findIn("--", listOf("us-east-1"))
+                .flatMap { resource -> resource.relatedArns.map { resource.resource.arn.arn() + " -> " + it.arn() } }
+                .forEach{System.out.println(it)}
     }
 }
