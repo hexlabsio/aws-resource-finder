@@ -9,12 +9,14 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
     FUNCTION(AwsService.LAMBDA, "function", "Function", ':' ),
     ROLE(AwsService.IAM, "role", "Role"),
     INSTANCE_PROFILE(AwsService.IAM, "instance-profile", "InstanceProfile", hasRegion = false),
-    KEY(AwsService.KMS, "key", "Key");
+    KEY(AwsService.KMS, "key", "Key"),
+    LOG_GROUP(AwsService.LOGS, "log-group", "LogGroup");
 
     enum class AwsService(val service: String, val type: String){
         EC2("ec2", "EC2"),
         LAMBDA("lambda", "Lambda"),
         IAM("iam", "IAM"),
-        KMS("kms", "KMS")
+        KMS("kms", "KMS"),
+        LOGS("logs", "Logs")
     }
 }
