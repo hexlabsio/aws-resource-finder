@@ -15,6 +15,7 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
         EC2("ec2", "EC2"),
         LAMBDA("lambda", "Lambda"),
         IAM("iam", "IAM"),
-        KMS("kms", "KMS")
+        KMS("kms", "KMS"),
+        API_GATEWAY("apigateway", "API Gateway")
     }
 }
