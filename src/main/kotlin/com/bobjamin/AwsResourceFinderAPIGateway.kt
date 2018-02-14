@@ -12,7 +12,7 @@ class AwsResourceFinderAPIGateway(
 
     fun apiResources(region: String): List<AwsResource.Relationships<APIInfo>> {
         val apiGateway = apiGatewayClient(region)
-        val blah = AwsResource.Finder
+        return AwsResource.Finder
                 .collectAll( { it.position }) { apiGateway.getRestApis(GetRestApisRequest().withPosition(it))}
                 .flatMap { it.items }
                 .map { Pair(it, apiGateway.getResources(GetResourcesRequest().withRestApiId(it.id).withEmbed("methods"))) }
@@ -21,18 +21,15 @@ class AwsResourceFinderAPIGateway(
                 .flatMap { it.second.resourceMethods.map { method -> Pair(it.first, Pair(it.second, method.value.methodIntegration)) } }
                 .filter { it.second.second.type == "AWS_PROXY" }
                 .map { AwsResource.Relationships(
-                        AwsResource(apiGatewayArn(region, it.second.first.path), APIInfo(it.second.second.httpMethod)),
+                        AwsResource(apiGatewayMethodArn(region, it.first.id, it.second.first.id), APIInfo(it.second.second.httpMethod, it.second.first.path)),
                         listOf(lambdaArnFromInvocationURI(it.second.second.uri)))}
-
-        println("hi $blah")
-
-        return emptyList()
     }
-    data class APIInfo(val methodType: String): AwsResource.Info
+
+    data class APIInfo(val methodType: String, val path: String): AwsResource.Info
 
     companion object {
 
-        private fun apiGatewayArn(region: String, resource: String) = AwsResource.Arn.from("arn:aws:apigateway:$region::$resource")
+        private fun apiGatewayMethodArn(region: String, apiId: String, resourceId: String) = AwsResource.Arn.from("arn:aws:apigateway:$region::/restapis/$apiId/resources/$resourceId")
         private fun lambdaArnFromInvocationURI(uri: String): AwsResource.Arn {
             val lambdaArn = ("arn:aws:" + uri.substringAfterLast("arn:aws")).substringBefore("/invocations")
             return AwsResource.Arn.from(lambdaArn)

@@ -15,4 +15,27 @@ class AwsResourceTest{
         assertEquals("instance", arn.subType)
         assertEquals("instance-id", arn.subId)
     }
+
+    @Test
+    fun `should match Log Group ARN`(){
+        val arn = AwsResource.Arn.from("arn:aws:logs:us-east-1:123456789012:log-group:my-log-group*:log-stream:my-log-stream*")
+        assertEquals("aws", arn.partition)
+        assertEquals("logs", arn.service)
+        assertEquals("us-east-1", arn.region)
+        assertEquals("123456789012", arn.account)
+        assertEquals("log-group:my-log-group*:log-stream:my-log-stream*", arn.resource)
+        assertEquals("log-group", arn.subType)
+        assertEquals("my-log-group*:log-stream:my-log-stream*", arn.subId)
+    }
+
+    class Tokenizable(val nextToken: String?, val value: Int)
+    @Test
+    fun `should collect all results from iterable client call`(){
+        val tokenList = mapOf( null to Tokenizable("a", 0), "a" to Tokenizable("b", 1), "b" to Tokenizable("c", 3), "c" to Tokenizable(null, 2))
+        val responseList = AwsResource.Finder.collectAll({it!!.nextToken}){ token -> tokenList[token] }.map { it!!.value }
+        assertEquals(4, responseList.size)
+        assertEquals(1, responseList[1])
+        assertEquals(3,  responseList[2])
+        assertEquals(2,  responseList[3])
+    }
 }
