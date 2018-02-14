@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.net.URLDecoder
-import javax.annotation.Resource
 
 class AwsResourceFinderIAM(
         private val iamClient: (region: String) -> AmazonIdentityManagement = AwsConfigurator.regionClientFrom(AmazonIdentityManagementClient.builder())
@@ -36,7 +35,7 @@ class AwsResourceFinderIAM(
 
     private fun relatedArnsFor(iamClient: AmazonIdentityManagement, role: Role): List<AwsResource.Arn>{
         return AwsResource.Finder
-                .collectAll( { it.marker } ){ iamClient("").listRolePolicies(ListRolePoliciesRequest().withMarker(it).withRoleName(role.roleName)) }
+                .collectAll( { it.marker } ){ iamClient.listRolePolicies(ListRolePoliciesRequest().withMarker(it).withRoleName(role.roleName)) }
                 .flatMap { it.policyNames.flatMap { resourceAccessListFrom(iamClient, role.roleName, it) } }
                 .flatMap {
                     resourceActions ->
