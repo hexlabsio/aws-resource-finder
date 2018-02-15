@@ -5,8 +5,21 @@ import org.junit.Test
 class AwsFinderTest{
     @Test
     fun test(){
-        AwsResourceFinderSQS().findIn("--", listOf("us-east-1"))
-                .flatMap { resource -> resource.relatedArns.map { resource.resource.arn.arn() + " -> " + it.arn() } }
-                .forEach{System.out.println(it)}
+        val items = getList()
+//            .groupBy { it.resource.arn.service }
+//            .map { it.key to it.value.flatMap { it.relatedArns.map { it.service + it.subType } }.toSet() }
+
+//        items.forEach{ a -> a.second.forEach{System.out.println(a.first + " -> " + it)}}
+    }
+
+    fun getList(): List<AwsResource.Relationships<*>>{
+        val account = "--"
+        val regions = listOf("us-east-1")
+        return AwsResourceFinderS3().findIn("", emptyList())
+//        return AwsResourceFinderEC2().findIn(account, regions) +
+//                AwsResourceFinderKMS().findIn(account, regions) +
+//                AwsResourceFinderLambda().findIn(account, regions) +
+//                AwsResourceFinderIAM().findIn(account, regions) +
+//                AwsResourceFinderSQS().findIn(account, regions)
     }
 }

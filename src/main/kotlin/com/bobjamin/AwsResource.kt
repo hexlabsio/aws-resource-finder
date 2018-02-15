@@ -16,8 +16,13 @@ class AwsResource<out T: AwsResource.Info>(val arn: Arn, val info: T){
                     )
 
             fun from(arn: String): Arn{
-                val args = arn.split(":")
-                if(args.size < 6) throw IllegalArgumentException("$arn is not a valid arn")
+                val args = arn.split(":").toMutableList()
+                if(args.size in 2..5 && arn.endsWith("*")){
+                    (args.size..5).forEach{ args.add("*") }
+                }
+                if(args.size < 6){
+                    throw IllegalArgumentException("$arn is not a valid arn")
+                }
                 val resource = (6 until args.size).fold(args[5], { s, i -> "$s:${args[i]}" })
                 val subType = subTypeFrom(resource)
                 val subId = if(subType != null) resource.substring(subType.resource.length + 1) else ""

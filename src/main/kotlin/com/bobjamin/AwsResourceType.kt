@@ -11,7 +11,8 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
     INSTANCE_PROFILE(AwsService.IAM, "instance-profile", "InstanceProfile", hasRegion = false),
     KEY(AwsService.KMS, "key", "Key"),
     LOG_GROUP(AwsService.LOGS, "log-group", "LogGroup"),
-    QUEUE(AwsService.SQS, "", "", arnSeparator = "");
+    QUEUE(AwsService.SQS, "", "", arnSeparator = ""),
+    BUCKET(AwsService.S3, "", "", arnSeparator = "", hasRegion = false, hasAccount = false);
 
     enum class AwsService(val service: String, val type: String){
         EC2("ec2", "EC2"),
@@ -19,6 +20,7 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
         IAM("iam", "IAM"),
         KMS("kms", "KMS"),
         LOGS("logs", "Logs"),
-        SQS("sqs", "SQS")
+        SQS("sqs", "SQS"),
+        S3("s3", "S3")
     }
 }
