@@ -1,11 +1,15 @@
 package com.bobjamin
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.Test
 
 class AwsFinderTest{
     @Test
     fun test(){
         val items = getList()
+        val nodeTree = NodeBuilder.buildFrom(items)
+        System.out.println(jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(nodeTree))
+
         items.forEach{ resource -> resource.relatedArns.forEach{ System.out.println(resource.resource.arn.arn() + " -> " + it.arn()) }}
 //            .groupBy { it.resource.arn.service }
 //            .map { it.key to it.value.flatMap { it.relatedArns.map { it.service + it.subType } }.toSet() }
