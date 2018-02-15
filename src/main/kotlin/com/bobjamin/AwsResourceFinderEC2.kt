@@ -2,16 +2,13 @@ package com.bobjamin
 
 import com.amazonaws.services.ec2.AmazonEC2
 import com.amazonaws.services.ec2.AmazonEC2Client
-import com.amazonaws.services.ec2.model.DescribeInstancesRequest
-import com.amazonaws.services.ec2.model.DescribeVolumesRequest
-import com.amazonaws.services.ec2.model.Instance
-import com.amazonaws.services.ec2.model.Volume
+import com.amazonaws.services.ec2.model.*
 
 class AwsResourceFinderEC2(
         private val ec2Client: (region: String) -> AmazonEC2 = AwsConfigurator.regionClientFrom(AmazonEC2Client.builder())
 ): AwsResource.Finder{
     override fun findIn(account: String, regions: List<String>): List<AwsResource.Relationships<*>> {
-        return regions.flatMap{ ec2Resources(it, account) + ebsResources(it, account) }
+        return regions.flatMap{ ec2Resources(it, account) + ebsResources(it, account) + securityGroupResources(it, account) }
     }
 
     fun ec2Regions(): List<String> = ec2Client("").describeRegions().regions.map { it.regionName }
@@ -42,15 +39,28 @@ class AwsResourceFinderEC2(
                 }
     }
 
+    fun securityGroupResources(region: String, account: String): List<AwsResource.Relationships<SecurityGroupInfo>>{
+        val ec2Client = ec2Client(region)
+        return AwsResource.Finder
+                .collectAll( { it.nextToken } ){ ec2Client.describeSecurityGroups(DescribeSecurityGroupsRequest().withNextToken(it)) }
+                .flatMap { it.securityGroups }
+                .map {
+                    val groupArn = AwsResource.Arn.from(AwsResourceType.SECURITY_GROUP, region, account, it.groupId)
+                    System.out.println(groupArn.arn())
+                    AwsResource.Relationships(AwsResource(groupArn, SecurityGroupInfo(it.groupName, it.ipPermissions, it.ipPermissionsEgress)))
+                }
+    }
+
     private fun relatedArnsFor(instance: Instance, region: String, account: String): List<AwsResource.Arn> = listOfNotNull(
             if(instance.imageId != null) AwsResource.Arn.from(AwsResourceType.IMAGE, region,account,instance.imageId) else null,
             if(instance.iamInstanceProfile != null) AwsResource.Arn.from(instance.iamInstanceProfile.arn) else null
-    )
+    ) + instance.securityGroups.map { AwsResource.Arn.from(AwsResourceType.SECURITY_GROUP, region, account, it.groupId) }
 
     private fun relatedArnsFor(volume: Volume, region: String, account: String): List<AwsResource.Arn> = listOfNotNull(
             if(volume.kmsKeyId != null) AwsResource.Arn.from(volume.kmsKeyId) else null
     ) + volume.attachments.filter { it.state == "attached" }.map { AwsResource.Arn.from(AwsResourceType.INSTANCE, region, account, it.instanceId) }
 
     data class EC2Info(val instanceType: String): AwsResource.Info
+    data class SecurityGroupInfo(val name: String, val ipPermissions: List<IpPermission>, val ipPermissionsEgress: List<IpPermission>): AwsResource.Info
     data class EBSInfo(val availabilityZone: String, val encrypted: Boolean, val size: Int, val state: String, val type: String): AwsResource.Info
 }
