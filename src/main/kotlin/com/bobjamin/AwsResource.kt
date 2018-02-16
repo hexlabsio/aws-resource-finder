@@ -1,6 +1,6 @@
 package com.bobjamin
 
-class AwsResource<out T: AwsResource.Info>(val arn: Arn, val info: T){
+class AwsResource(val arn: Arn, val info: Info){
     data class Arn(val service: String, val region: String, val account: String, val resource: String, val subType: String = "", val subId: String = "", val partition: String = "aws"){
         fun arn() = "arn:$partition:$service:$region:$account:$resource"
         companion object {
@@ -45,13 +45,13 @@ class AwsResource<out T: AwsResource.Info>(val arn: Arn, val info: T){
         }
     }
 
-    interface Info
+    data class Info(val title: String,val type: String,val otherProperties: Map<String, String> = emptyMap(), val size: Double = 1.0)
 
-    data class Relationships<out T: Info>(val resource: AwsResource<T>, val relatedArns: List<Arn> = emptyList())
+    data class Relationships(val resource: AwsResource, val relatedArns: List<Arn> = emptyList())
 
     interface Finder{
 
-        fun findIn(account: String, regions: List<String>): List<Relationships<*>>
+        fun findIn(account: String, regions: List<String>): List<Relationships>
 
         companion object {
 

@@ -15,6 +15,8 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
     QUEUE(AwsService.SQS, "", "", arnSeparator = ""),
     BUCKET(AwsService.S3, "", "", arnSeparator = "", hasRegion = false, hasAccount = false);
 
+    fun type() = "AWS::${service.type}::$type"
+
     enum class AwsService(val service: String, val type: String){
         EC2("ec2", "EC2"),
         LAMBDA("lambda", "Lambda"),

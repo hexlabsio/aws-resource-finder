@@ -21,13 +21,11 @@ class AwsResourceFinderSQSTest {
         with(resources[0]){
             with(this.resource){
                 assertEquals("arn:aws:sqs:us-east-2:123456789012:MyQueue", this.arn.arn())
-                assertFalse((this.info as AwsResourceFinderSQS.SqsInfo).fifo)
             }
         }
         with(resources[1]){
             with(this.resource){
                 assertEquals("arn:aws:sqs:us-east-2:123456789012:MyQueue2", this.arn.arn())
-                assertTrue((this.info as AwsResourceFinderSQS.SqsInfo).fifo)
             }
         }
     }

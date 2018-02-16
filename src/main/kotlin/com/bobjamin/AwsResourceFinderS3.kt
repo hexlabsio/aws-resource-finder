@@ -9,11 +9,11 @@ import com.amazonaws.services.sqs.AmazonSQSClient
 class AwsResourceFinderS3(
         private val s3Client: (region: String) -> AmazonS3 = AwsConfigurator.regionClientFrom(AmazonS3Client.builder())
 ): AwsResource.Finder{
-    override fun findIn(account: String, regions: List<String>): List<AwsResource.Relationships<*>> {
+    override fun findIn(account: String, regions: List<String>): List<AwsResource.Relationships> {
         return s3Resources()
     }
 
-    fun s3Resources(): List<AwsResource.Relationships<S3Info>>{
+    fun s3Resources(): List<AwsResource.Relationships>{
         val s3Client = s3Client("")
         return AwsResource.Finder
                 .clientCall{ s3Client.listBuckets() }
@@ -21,8 +21,7 @@ class AwsResourceFinderS3(
                 .map {
                     val bucketArn = AwsResource.Arn.from(AwsResourceType.BUCKET, "", "", it.name)
                     System.out.println(bucketArn.arn())
-                    AwsResource.Relationships(AwsResource(bucketArn, S3Info(it.name)))
+                    AwsResource.Relationships(AwsResource(bucketArn, AwsResource.Info(it.name, AwsResourceType.BUCKET.type())))
                 }
     }
-     class S3Info(val name: String): AwsResource.Info
 }

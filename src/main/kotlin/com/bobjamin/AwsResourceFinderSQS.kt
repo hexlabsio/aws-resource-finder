@@ -6,11 +6,11 @@ import com.amazonaws.services.sqs.AmazonSQSClient
 class AwsResourceFinderSQS(
         private val sqsClient: (region: String) -> AmazonSQS = AwsConfigurator.regionClientFrom(AmazonSQSClient.builder())
 ): AwsResource.Finder{
-    override fun findIn(account: String, regions: List<String>): List<AwsResource.Relationships<*>> {
+    override fun findIn(account: String, regions: List<String>): List<AwsResource.Relationships> {
         return regions.flatMap{ sqsResources(it) }
     }
 
-    fun sqsResources(region: String): List<AwsResource.Relationships<SqsInfo>>{
+    fun sqsResources(region: String): List<AwsResource.Relationships>{
         val sqsClient = sqsClient(region)
         return AwsResource.Finder
                 .clientCall{ sqsClient.listQueues() }
@@ -22,8 +22,7 @@ class AwsResourceFinderSQS(
                     val region = it.substringAfter('.').substringBefore('.')
                     val queueArn = AwsResource.Arn.from(AwsResourceType.QUEUE, region, account, queueName)
                     System.out.println(queueArn.arn())
-                    AwsResource.Relationships(AwsResource(queueArn, SqsInfo(fifo)))
+                    AwsResource.Relationships(AwsResource(queueArn, AwsResource.Info(queueName, AwsResourceType.QUEUE.type())))
                 }
     }
-     class SqsInfo(val fifo: Boolean): AwsResource.Info
 }

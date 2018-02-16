@@ -22,13 +22,11 @@ class AwsResourceFinderS3Test {
         with(resources[0]){
             with(this.resource){
                 assertEquals("arn:aws:s3:::bucket-1", this.arn.arn())
-                assertEquals("bucket-1", (this.info as AwsResourceFinderS3.S3Info).name)
             }
         }
         with(resources[1]){
             with(this.resource){
                 assertEquals("arn:aws:s3:::bucket-2", this.arn.arn())
-                assertEquals("bucket-2", (this.info as AwsResourceFinderS3.S3Info).name)
             }
         }
     }
