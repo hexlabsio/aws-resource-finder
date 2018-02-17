@@ -6,6 +6,7 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
     IMAGE(AwsService.EC2, "image", "Image", hasAccount = false),
     VOLUME(AwsService.EC2, "volume", "Volume"),
     SNAPSHOT(AwsService.EC2, "snapshot", "Snapshot", hasAccount = false),
+    SECURITY_GROUP(AwsService.EC2, "security-group", "SecurityGroup"),
     FUNCTION(AwsService.LAMBDA, "function", "Function", ":" ),
     ROLE(AwsService.IAM, "role", "Role"),
     INSTANCE_PROFILE(AwsService.IAM, "instance-profile", "InstanceProfile", hasRegion = false),
