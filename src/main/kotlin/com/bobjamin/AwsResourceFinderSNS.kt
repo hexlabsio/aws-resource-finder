@@ -9,28 +9,28 @@ class AwsResourceFinderSNS(
         private val snsClient: (region: String) -> AmazonSNS = AwsConfigurator.regionClientFrom(AmazonSNSClient.builder())
 ) : AwsResource.Finder {
 
-    override fun findIn(account: String, regions: List<String>): List<AwsResource.Relationships<SnsInfo>> {
+    override fun findIn(account: String, regions: List<String>): List<AwsResource.Relationships> {
         return regions.flatMap { mergeResources(snsSubScriptions(it), snsResources(it)) }
     }
 
-    fun mergeResources(res1: List<AwsResource.Relationships<SnsInfo>>, res2: List<AwsResource.Relationships<SnsInfo>>) =
+    fun mergeResources(res1: List<AwsResource.Relationships>, res2: List<AwsResource.Relationships>) =
             res2.fold(res1) {acc, elem ->
                 if(acc.filter { it.resource.arn == elem.resource.arn }.isEmpty()) acc + elem
                 else acc
             }
 
-    fun snsResources(region: String): List<AwsResource.Relationships<SnsInfo>> {
+    fun snsResources(region: String): List<AwsResource.Relationships> {
         val snsClient = snsClient(region)
         return AwsResource.Finder
                 .collectAll( { it.nextToken } ){ snsClient.listTopics(ListTopicsRequest().withNextToken(it)) }
                 .flatMap { it.topics }
                 .map {
                     val topArn = AwsResource.Arn.from(it.topicArn)
-                    AwsResource.Relationships(AwsResource(topArn, SnsInfo))
+                    AwsResource.Relationships(AwsResource(topArn, AwsResource.Info(topArn.resource, AwsResourceType.TOPIC.type())))
                 }
     }
 
-    fun snsSubScriptions(region: String): List<AwsResource.Relationships<SnsInfo>>  {
+    fun snsSubScriptions(region: String): List<AwsResource.Relationships>  {
         val snsClient = snsClient(region)
         return AwsResource.Finder
                 .collectAll( { it.nextToken } ){ snsClient.listSubscriptions(ListSubscriptionsRequest().withNextToken(it)) }
@@ -38,8 +38,7 @@ class AwsResourceFinderSNS(
                 .filter { listOf("lambda", "sqs").contains(it.protocol) }
                 .map { AwsResource.Arn.from(it.topicArn) to AwsResource.Arn.from(it.endpoint) }
                 .groupBy { it.first }.mapValues { it.value.map { it.second } }
-                .map{AwsResource.Relationships(AwsResource(it.key, SnsInfo), it.value)}
+                .map{AwsResource.Relationships(AwsResource(it.key, AwsResource.Info(it.key.resource, AwsResourceType.TOPIC.type())), it.value)}
     }
 
-    object SnsInfo : AwsResource.Info
 }
