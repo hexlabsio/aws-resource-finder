@@ -13,6 +13,7 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
     KEY(AwsService.KMS, "key", "Key"),
     LOG_GROUP(AwsService.LOGS, "log-group", "LogGroup"),
     QUEUE(AwsService.SQS, "", "", arnSeparator = ""),
+    TOPIC(AwsService.SNS, "", "", arnSeparator = ""),
     BUCKET(AwsService.S3, "", "", arnSeparator = "", hasRegion = false, hasAccount = false);
 
     enum class AwsService(val service: String, val type: String){
@@ -22,6 +23,7 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
         KMS("kms", "KMS"),
         LOGS("logs", "Logs"),
         SQS("sqs", "SQS"),
+        SNS("sns", "SNS"),
         S3("s3", "S3")
     }
 }
