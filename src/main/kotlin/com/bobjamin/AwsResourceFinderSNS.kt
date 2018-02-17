@@ -35,6 +35,7 @@ class AwsResourceFinderSNS(
         return AwsResource.Finder
                 .collectAll( { it.nextToken } ){ snsClient.listSubscriptions(ListSubscriptionsRequest().withNextToken(it)) }
                 .flatMap { it.subscriptions }
+                .filter { listOf("lambda", "sqs").contains(it.protocol) }
                 .map { AwsResource.Arn.from(it.topicArn) to AwsResource.Arn.from(it.endpoint) }
                 .groupBy { it.first }.mapValues { it.value.map { it.second } }
                 .map{AwsResource.Relationships(AwsResource(it.key, SnsInfo), it.value)}

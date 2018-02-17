@@ -16,8 +16,8 @@ class AwsFinderTest{
     fun getList(): List<AwsResource.Relationships<*>>{
         val account = "--"
         val regions = listOf("us-east-1")
-        return AwsResourceFinderEC2().findIn(account, regions)+
-                AwsResourceFinderLambda().findIn(account, regions)
+        return AwsResourceFinderSNS().findIn(account, regions)
+//                AwsResourceFinderLambda().findIn(account, regions)
        // return AwsResourceFinderS3().findIn("", emptyList())
 //        return AwsResourceFinderEC2().findIn(account, regions) +
 //                AwsResourceFinderKMS().findIn(account, regions) +
