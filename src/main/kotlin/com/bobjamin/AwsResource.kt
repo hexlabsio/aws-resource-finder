@@ -1,6 +1,6 @@
 package com.bobjamin
 
-class AwsResource(val arn: Arn, val info: Info){
+data class AwsResource(val arn: Arn, val info: Info){
     data class Arn(val service: String, val region: String, val account: String, val resource: String, val subType: String = "", val subId: String = "", val partition: String = "aws"){
         fun arn() = "arn:$partition:$service:$region:$account:$resource"
         companion object {
