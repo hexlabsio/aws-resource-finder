@@ -19,7 +19,7 @@ class AwsResourceFinderKMS(
                 .map {
                     val keyArn = AwsResource.Arn.from(it.keyArn)
                     System.out.println(keyArn.arn())
-                    AwsResource.Relationships(AwsResource(keyArn, AwsResource.Info(it.keyId, AwsResourceType.KEY.type())))
+                    AwsResource.Relationships(AwsResource(keyArn, AwsResource.Info(keyArn.subId, AwsResourceType.KEY.type())))
                 }
     }
 }

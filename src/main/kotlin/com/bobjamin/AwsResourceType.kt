@@ -13,8 +13,8 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
     KEY(AwsService.KMS, "key", "Key"),
     LOG_GROUP(AwsService.LOGS, "log-group", "LogGroup"),
     QUEUE(AwsService.SQS, "", "", arnSeparator = ""),
-    TOPIC(AwsService.SNS, "", "", arnSeparator = ""),
-    BUCKET(AwsService.S3, "", "", arnSeparator = "", hasRegion = false, hasAccount = false);
+    TOPIC(AwsService.SNS, "", "Topic", arnSeparator = ""),
+    BUCKET(AwsService.S3, "", "Bucket", arnSeparator = "", hasRegion = false, hasAccount = false);
 
     fun type() = "AWS::${service.type}::$type"
 

@@ -38,7 +38,7 @@ class AwsResourceFinderSNSTest {
                                             account = "123456789012",
                                             resource = "MyTopic1",
                                             partition = "aws"),
-                                            info = AwsResourceFinderSNS.SnsInfo),
+                                            info = AwsResource.Info("MyTopic1","AWS::SNS::Topic")),
                         relatedArns= listOf(
                             AwsResource.Arn(service = "lambda",
                                             region = "eu-west-1",
@@ -62,7 +62,7 @@ class AwsResourceFinderSNSTest {
                                             account = "123456789012",
                                             resource = "MyTopic2",
                                             partition = "aws"),
-                                            info = AwsResourceFinderSNS.SnsInfo),
+                                            info = AwsResource.Info("MyTopic2","AWS::SNS::Topic")),
                         relatedArns= listOf(
                             AwsResource.Arn(service = "lambda",
                                             region = "eu-west-1",
@@ -78,7 +78,7 @@ class AwsResourceFinderSNSTest {
                                     account = "123456789012",
                                     resource = "MyTopic3",
                                     partition = "aws"),
-                                    info = AwsResourceFinderSNS.SnsInfo),
+                                    info = AwsResource.Info("MyTopic3","AWS::SNS::Topic")),
                         relatedArns= emptyList()), resources[2])
     }
 }
