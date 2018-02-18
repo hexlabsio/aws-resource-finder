@@ -53,7 +53,7 @@ class AwsResourceFinderIAM(
     private fun resourceAccessListFrom(iamClient: AmazonIdentityManagement, roleName: String, policyName: String): List<ResourceActions> =
             AwsResource.Finder
                     .clientCall { iamClient.getRolePolicy(GetRolePolicyRequest().withRoleName(roleName).withPolicyName(policyName)) }
-                    .map { jacksonMapper.readValue<IamPolicy>(URLDecoder.decode(it.policyDocument, "UTF-8")) }
+                    .map { jacksonMapper.readValue<IamPolicy>(URLDecoder.decode(it?.policyDocument, "UTF-8")) }
                     .flatMap { it.Statement.filter { it.Effect == "Allow" } }
                     .map {
                         ResourceActions(

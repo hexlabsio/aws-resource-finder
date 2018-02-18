@@ -54,31 +54,31 @@ data class AwsResource(val arn: Arn, val info: Info){
         fun findIn(account: String, regions: List<String>): List<Relationships>
 
         companion object {
+            fun <T> clientCall(method: () -> T?) = collectAll({ null }) {method()}
 
-            fun <T> clientCall(method: () -> T) = collectAll( { null } ){ method() }
+            fun <T> collectAll(nextToken: (T) -> String?, nextBatch: (String?) -> T) =
+                    collectAllRec(nextToken = nextToken, nextBatch = nextBatch)
 
-            fun <T> collectAll(nextToken: (tokenized: T) -> String?, method: (nextToken: String?) -> T): List<T> {
-                val results = mutableListOf<T>()
-                    return try{
-                        var result = method(null)
-                        results.add(result)
-                        var token = nextToken(result)
-                        while(token != null){
-                            result = method(token)
-                            results.add(result)
-                            token = nextToken(result)
-                        }
-                        results
-                    }
+            private tailrec fun <T> collectAllRec(nextToken: (T) -> String?, nextBatch: (String?) -> T,
+                                lastRes: String? = null, acc: List<T> = emptyList()): List<T> {
+                val res = safeNextBatch { nextBatch(lastRes) }
+                val token = res?.let { nextToken(it) }
+                return when {
+                    res == null -> acc
+                    token == null -> acc + res
+                    else -> collectAllRec(nextToken, nextBatch, token, acc + res)
+                }
+            }
+
+            private fun <T> safeNextBatch(nextBatch: () -> T): T? =
+                    try{nextBatch()}
                     catch(e: Exception){
                         System.err.println(e)
                         if(e.message?.contains("Rate exceeded") == true){
                             Thread.sleep(4000)
-                            results + collectAll(nextToken, method)
-                        }
-                        else emptyList()
+                            safeNextBatch(nextBatch)
+                        } else null
                     }
-            }
         }
     }
 }

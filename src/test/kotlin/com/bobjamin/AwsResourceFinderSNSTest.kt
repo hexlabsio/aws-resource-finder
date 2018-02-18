@@ -13,11 +13,14 @@ class AwsResourceFinderSNSTest {
         val snsClient = Mockito.mock(AmazonSNS::class.java)
         val listSubscriptionsResult = ListSubscriptionsResult().withSubscriptions(listOf(
                 Subscription().withTopicArn("arn:aws:sns:eu-west-1:123456789012:MyTopic1")
-                        .withEndpoint("arn:aws:lambda:eu-west-1:123456789012:function:lambda1"),
+                        .withEndpoint("arn:aws:lambda:eu-west-1:123456789012:function:lambda1")
+                        .withProtocol("lambda"),
                 Subscription().withTopicArn("arn:aws:sns:eu-west-1:123456789012:MyTopic1")
-                        .withEndpoint("arn:aws:lambda:eu-west-1:123456789012:function:lambda2"),
+                        .withEndpoint("arn:aws:lambda:eu-west-1:123456789012:function:lambda2")
+                        .withProtocol("lambda"),
                 Subscription().withTopicArn("arn:aws:sns:eu-west-1:123456789012:MyTopic2")
                         .withEndpoint("arn:aws:lambda:eu-west-1:123456789012:function:lambda3")
+                        .withProtocol("lambda")
 
         ))
 
