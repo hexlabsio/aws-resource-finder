@@ -54,27 +54,24 @@ data class AwsResource(val arn: Arn, val info: Info){
         fun findIn(account: String, regions: List<String>): List<Relationships>
 
         companion object {
-            fun <T> clientCall(method: () -> T?) = collectAll({ null }) {method()}
+            fun <T : Any> clientCall(method: () -> T) = collectAll({ null }, { method() })
 
-            fun <T> collectAll(nextToken: (T) -> String?, nextBatch: (String?) -> T) =
-                    collectAllRec(nextToken = nextToken, nextBatch = nextBatch)
-
-            private tailrec fun <T> collectAllRec(nextToken: (T) -> String?, nextBatch: (String?) -> T,
-                                lastRes: String? = null, acc: List<T> = emptyList()): List<T> {
-                val res = safeNextBatch { nextBatch(lastRes) }
-                val token = res?.let { nextToken(it) }
-                return when {
-                    res == null -> acc
-                    token == null -> acc + res
-                    else -> collectAllRec(nextToken, nextBatch, token, acc + res)
+            fun <T : Any> collectAll(nextToken: (T) -> String?, nextBatch: (String?) -> T): List<T> {
+                fun genNext(lRes: T?): T? {
+                    val token = lRes?.let { nextToken(it) }
+                    return token?.let { safeNextBatch { nextBatch(it) } }
                 }
+                return generateSequence(safeNextBatch { nextBatch(null) }) { genNext(it) }
+                        .takeWhile { true }.toList()
             }
 
-            private fun <T> safeNextBatch(nextBatch: () -> T): T? =
-                    try{nextBatch()}
-                    catch(e: Exception){
+
+            fun <T> safeNextBatch(nextBatch: () -> T): T? =
+                    try {
+                        nextBatch()
+                    } catch (e: Exception) {
                         System.err.println(e)
-                        if(e.message?.contains("Rate exceeded") == true){
+                        if (e.message?.contains("Rate exceeded") == true) {
                             Thread.sleep(4000)
                             safeNextBatch(nextBatch)
                         } else null
