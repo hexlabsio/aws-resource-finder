@@ -4,12 +4,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.Test
 import java.io.File
 
+/*
 class AwsFinderTest{
-    @Test
-    fun test(){
-        val items = getList()
-        val nodeTree = NodeBuilder.buildFrom(items)
-        File("C:\\Code\\nodes.json").writeText(jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(nodeTree))
+       @Test
+
+       fun test(){
+           val items = getList()
+           val nodeTree = NodeBuilder.buildFrom(items)
+           File("C:\\Code\\nodes.json").writeText(jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(nodeTree))
 
 
         //items.forEach{ resource -> resource.relatedArns.forEach{ System.out.println(resource.resource.arn.arn() + " -> " + it.arn()) }}
@@ -32,4 +34,4 @@ class AwsFinderTest{
 //                AwsResourceFinderIAM().findIn(account, regions) +
 //                AwsResourceFinderSQS().findIn(account, regions)
     }
-}
+}*/

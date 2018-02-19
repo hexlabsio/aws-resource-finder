@@ -2,9 +2,6 @@ package com.bobjamin
 
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.ListBucketsRequest
-import com.amazonaws.services.sqs.AmazonSQS
-import com.amazonaws.services.sqs.AmazonSQSClient
 
 class AwsResourceFinderS3(
         private val s3Client: (region: String) -> AmazonS3 = AwsConfigurator.regionClientFrom(AmazonS3Client.builder())
@@ -17,7 +14,7 @@ class AwsResourceFinderS3(
         val s3Client = s3Client("")
         return AwsResource.Finder
                 .clientCall{ s3Client.listBuckets() }
-                .flatMap { it }
+                .flatMap { it ?: emptyList() }
                 .map {
                     val bucketArn = AwsResource.Arn.from(AwsResourceType.BUCKET, "", "", it.name)
                     System.out.println(bucketArn.arn())

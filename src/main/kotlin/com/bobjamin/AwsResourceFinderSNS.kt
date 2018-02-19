@@ -10,7 +10,10 @@ class AwsResourceFinderSNS(
 ) : AwsResource.Finder {
 
     override fun findIn(account: String, regions: List<String>): List<AwsResource.Relationships> {
-        return regions.flatMap { mergeResources(snsSubScriptions(it), snsResources(it)) }
+        return regions.flatMap {
+            val client = snsClient(it)
+            mergeResources(snsSubScriptions(client), snsResources(client))
+        }
     }
 
     fun mergeResources(res1: List<AwsResource.Relationships>, res2: List<AwsResource.Relationships>) =
@@ -19,8 +22,7 @@ class AwsResourceFinderSNS(
                 else acc
             }
 
-    fun snsResources(region: String): List<AwsResource.Relationships> {
-        val snsClient = snsClient(region)
+    fun snsResources(snsClient: AmazonSNS): List<AwsResource.Relationships> {
         return AwsResource.Finder
                 .collectAll( { it.nextToken } ){ snsClient.listTopics(ListTopicsRequest().withNextToken(it)) }
                 .flatMap { it.topics }
@@ -30,8 +32,7 @@ class AwsResourceFinderSNS(
                 }
     }
 
-    fun snsSubScriptions(region: String): List<AwsResource.Relationships>  {
-        val snsClient = snsClient(region)
+    fun snsSubScriptions(snsClient: AmazonSNS): List<AwsResource.Relationships>  {
         return AwsResource.Finder
                 .collectAll( { it.nextToken } ){ snsClient.listSubscriptions(ListSubscriptionsRequest().withNextToken(it)) }
                 .flatMap { it.subscriptions }

@@ -54,31 +54,28 @@ data class AwsResource(val arn: Arn, val info: Info){
         fun findIn(account: String, regions: List<String>): List<Relationships>
 
         companion object {
+            fun <T : Any> clientCall(method: () -> T) = collectAll({ null }, { method() })
 
-            fun <T> clientCall(method: () -> T) = collectAll( { null } ){ method() }
-
-            fun <T> collectAll(nextToken: (tokenized: T) -> String?, method: (nextToken: String?) -> T): List<T> {
-                val results = mutableListOf<T>()
-                    return try{
-                        var result = method(null)
-                        results.add(result)
-                        var token = nextToken(result)
-                        while(token != null){
-                            result = method(token)
-                            results.add(result)
-                            token = nextToken(result)
-                        }
-                        results
-                    }
-                    catch(e: Exception){
-                        System.err.println(e)
-                        if(e.message?.contains("Rate exceeded") == true){
-                            Thread.sleep(4000)
-                            results + collectAll(nextToken, method)
-                        }
-                        else emptyList()
-                    }
+            fun <T : Any> collectAll(nextToken: (T) -> String?, nextBatch: (String?) -> T): List<T> {
+                fun genNext(lRes: T?): T? {
+                    val token = lRes?.let { nextToken(it) }
+                    return token?.let { safeNextBatch { nextBatch(it) } }
+                }
+                return generateSequence(safeNextBatch { nextBatch(null) }) { genNext(it) }
+                        .takeWhile { true }.toList()
             }
+
+
+            fun <T> safeNextBatch(nextBatch: () -> T): T? =
+                    try {
+                        nextBatch()
+                    } catch (e: Exception) {
+                        System.err.println(e)
+                        if (e.message?.contains("Rate exceeded") == true) {
+                            Thread.sleep(4000)
+                            safeNextBatch(nextBatch)
+                        } else null
+                    }
         }
     }
 }

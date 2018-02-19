@@ -14,13 +14,13 @@ class AwsResourceFinderSQS(
         val sqsClient = sqsClient(region)
         return AwsResource.Finder
                 .clientCall{ sqsClient.listQueues() }
-                .flatMap { it.queueUrls }
+                .flatMap { it?.queueUrls ?: emptyList()}
                 .map {
                     val fifo = it.endsWith(".fifo")
                     val queueName = it.substringAfterLast('/').let { if(fifo)it.substringBeforeLast('.') else it }
                     val account= it.substringBeforeLast('/').substringAfterLast('/')
-                    val region = it.substringAfter('.').substringBefore('.')
-                    val queueArn = AwsResource.Arn.from(AwsResourceType.QUEUE, region, account, queueName)
+                    val sqsRegion = it.substringAfter('.').substringBefore('.')
+                    val queueArn = AwsResource.Arn.from(AwsResourceType.QUEUE, sqsRegion, account, queueName)
                     System.out.println(queueArn.arn())
                     AwsResource.Relationships(AwsResource(queueArn, AwsResource.Info(queueName, AwsResourceType.QUEUE.type())))
                 }

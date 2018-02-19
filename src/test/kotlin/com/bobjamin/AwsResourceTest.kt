@@ -42,7 +42,7 @@ class AwsResourceTest{
     @Test
     fun `should collect all results from iterable client call`(){
         val tokenList = mapOf( null to Tokenizable("a", 0), "a" to Tokenizable("b", 1), "b" to Tokenizable("c", 3), "c" to Tokenizable(null, 2))
-        val responseList = AwsResource.Finder.collectAll({it!!.nextToken}){ token -> tokenList[token] }.map { it!!.value }
+        val responseList = AwsResource.Finder.collectAll({it.nextToken}){ token -> tokenList[token]!! }.map { it.value }
         assertEquals(4, responseList.size)
         assertEquals(1, responseList[1])
         assertEquals(3,  responseList[2])
