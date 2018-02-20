@@ -47,9 +47,9 @@ class AwsResourceFinderAPIGateway(
 
 
     companion object {
-        private fun apiArn(region: String, apiId: String) = AwsResource.Arn.from("arn:aws:apigateway:$region::/restapis/$apiId")
-        private fun resourceArn(region: String, apiId: String, resourceId: String) = AwsResource.Arn.from("arn:aws:apigateway:$region::/restapis/$apiId/resources/$resourceId")
-        private fun methodArn(region: String, apiId: String, resourceId: String, methodType: String) = AwsResource.Arn.from("arn:aws:apigateway:$region::/restapis/$apiId/resources/$resourceId/methods/$methodType")
+        private fun apiArn(region: String, apiId: String) = AwsResource.Arn.from(AwsResourceType.REST_API, region, "", "/restapis/$apiId")
+        private fun resourceArn(region: String, apiId: String, resourceId: String) = AwsResource.Arn.from(AwsResourceType.REST_API, region, "", "/restapis/$apiId/resources/$resourceId")
+        private fun methodArn(region: String, apiId: String, resourceId: String, methodType: String) = AwsResource.Arn.from(AwsResourceType.REST_API, region, "", "/restapis/$apiId/resources/$resourceId/methods/$methodType")
         private fun lambdaArnFromInvocationURI(uri: String): AwsResource.Arn {
             val lambdaArn = ("arn:aws:" + uri.substringAfterLast("arn:aws")).substringBefore("/invocations")
             return AwsResource.Arn.from(lambdaArn)
