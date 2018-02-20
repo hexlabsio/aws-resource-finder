@@ -1,6 +1,6 @@
 package com.bobjamin
 
-class AwsResource<out T: AwsResource.Info>(val arn: Arn, val info: T){
+data class AwsResource(val arn: Arn, val info: Info){
     data class Arn(val service: String, val region: String, val account: String, val resource: String, val subType: String = "", val subId: String = "", val partition: String = "aws"){
         fun arn() = "arn:$partition:$service:$region:$account:$resource"
         companion object {
@@ -16,8 +16,13 @@ class AwsResource<out T: AwsResource.Info>(val arn: Arn, val info: T){
                     )
 
             fun from(arn: String): Arn{
-                val args = arn.split(":")
-                if(args.size < 6) throw IllegalArgumentException("$arn is not a valid arn")
+                val args = arn.split(":").toMutableList()
+                if(args.size in 2..5 && arn.endsWith("*")){
+                    (args.size..5).forEach{ args.add("*") }
+                }
+                if(args.size < 6){
+                    throw IllegalArgumentException("$arn is not a valid arn")
+                }
                 val resource = (6 until args.size).fold(args[5], { s, i -> "$s:${args[i]}" })
                 val subType = subTypeFrom(resource)
                 val subId = if(subType != null) resource.substring(subType.resource.length + 1) else ""
@@ -40,40 +45,37 @@ class AwsResource<out T: AwsResource.Info>(val arn: Arn, val info: T){
         }
     }
 
-    interface Info
+    data class Info(val title: String,val type: String,val otherProperties: Map<String, String> = emptyMap(), val size: Double = 1.0)
 
-    data class Relationships<out T: Info>(val resource: AwsResource<T>, val relatedArns: List<Arn> = emptyList())
+    data class Relationships(val resource: AwsResource, val relatedArns: List<Arn> = emptyList())
 
     interface Finder{
 
-        fun findIn(account: String, regions: List<String>): List<Relationships<*>>
+        fun findIn(account: String, regions: List<String>): List<Relationships>
 
         companion object {
+            fun <T : Any> clientCall(method: () -> T) = collectAll({ null }, { method() })
 
-            fun <T> clientCall(method: () -> T) = collectAll( { null } ){ method() }
-
-            fun <T> collectAll(nextToken: (tokenized: T) -> String?, method: (nextToken: String?) -> T): List<T> {
-                val results = mutableListOf<T>()
-                    return try{
-                        var result = method(null)
-                        results.add(result)
-                        var token = nextToken(result)
-                        while(token != null){
-                            result = method(token)
-                            results.add(result)
-                            token = nextToken(result)
-                        }
-                        results
-                    }
-                    catch(e: Exception){
-                        System.err.println(e)
-                        if(e.message?.contains("Rate exceeded") == true){
-                            Thread.sleep(4000)
-                            results + collectAll(nextToken, method)
-                        }
-                        else emptyList()
-                    }
+            fun <T : Any> collectAll(nextToken: (T) -> String?, nextBatch: (String?) -> T): List<T> {
+                fun genNext(lRes: T?): T? {
+                    val token = lRes?.let { nextToken(it) }
+                    return token?.let { safeNextBatch { nextBatch(it) } }
+                }
+                return generateSequence(safeNextBatch { nextBatch(null) }) { genNext(it) }
+                        .takeWhile { true }.toList()
             }
+
+
+            fun <T> safeNextBatch(nextBatch: () -> T): T? =
+                    try {
+                        nextBatch()
+                    } catch (e: Exception) {
+                        System.err.println(e)
+                        if (e.message?.contains("Rate exceeded") == true) {
+                            Thread.sleep(4000)
+                            safeNextBatch(nextBatch)
+                        } else null
+                    }
         }
     }
 }

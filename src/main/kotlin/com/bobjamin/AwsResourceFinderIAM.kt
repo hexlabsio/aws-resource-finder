@@ -17,11 +17,11 @@ import java.net.URLDecoder
 class AwsResourceFinderIAM(
         private val iamClient: (region: String) -> AmazonIdentityManagement = AwsConfigurator.regionClientFrom(AmazonIdentityManagementClient.builder())
 ): AwsResource.Finder{
-    override fun findIn(account: String, regions: List<String>): List<AwsResource.Relationships<*>> {
+    override fun findIn(account: String, regions: List<String>): List<AwsResource.Relationships> {
         return regions.flatMap{ iamResources(it) }
     }
 
-    fun iamResources(region: String): List<AwsResource.Relationships<IAMInfo>>{
+    fun iamResources(region: String): List<AwsResource.Relationships>{
         val iamClient = iamClient(region)
         return AwsResource.Finder
                 .collectAll( { it.marker } ){ iamClient.listRoles(ListRolesRequest().withMarker(it)) }
@@ -29,7 +29,7 @@ class AwsResourceFinderIAM(
                 .map {
                     val roleArn = AwsResource.Arn.from(it.arn)
                     System.out.println(roleArn.arn())
-                    AwsResource.Relationships(AwsResource(roleArn, IAMInfo(it.path)),relatedArnsFor(iamClient, it))
+                    AwsResource.Relationships(AwsResource(roleArn, AwsResource.Info(it.roleName, AwsResourceType.ROLE.type())),relatedArnsFor(iamClient, it))
                 }
     }
 
@@ -53,7 +53,7 @@ class AwsResourceFinderIAM(
     private fun resourceAccessListFrom(iamClient: AmazonIdentityManagement, roleName: String, policyName: String): List<ResourceActions> =
             AwsResource.Finder
                     .clientCall { iamClient.getRolePolicy(GetRolePolicyRequest().withRoleName(roleName).withPolicyName(policyName)) }
-                    .map { jacksonMapper.readValue<IamPolicy>(URLDecoder.decode(it.policyDocument, "UTF-8")) }
+                    .map { jacksonMapper.readValue<IamPolicy>(URLDecoder.decode(it?.policyDocument, "UTF-8")) }
                     .flatMap { it.Statement.filter { it.Effect == "Allow" } }
                     .map {
                         ResourceActions(
@@ -67,7 +67,7 @@ class AwsResourceFinderIAM(
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class IamPolicyStatement(val Action: JsonNode, val Resource: JsonNode, val Effect: String)
     data class ResourceActions(val resources: List<String>, val actions: List<String>)
-    data class IAMInfo(val path: String): AwsResource.Info
+
 
     companion object {
         private val jacksonMapper = jacksonObjectMapper()
