@@ -4,13 +4,13 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.Test
 import java.io.File
 
-
+/*
 class AwsFinderTest{
        @Test
 
        fun test(){
-           val items = getList()
-           items.forEach { item -> println(item) }
+//           val items = getList()
+//           items.forEach { item -> println(item) }
 //           val items = getList()
 //           val nodeTree = NodeBuilder.buildFrom(items)
 //           File("C:\\Code\\nodes.json").writeText(jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(nodeTree))
@@ -24,9 +24,9 @@ class AwsFinderTest{
     }
 
     fun getList(): List<AwsResource.Relationships>{
-        val account = "--"
-        val regions = listOf("us-east-1")
-        return AwsResourceFinderAPIGateway().findIn("", regions)
+//        val account = "--"
+//        val regions = listOf("us-east-1")
+//        return AwsResourceFinderAPIGateway().findIn("", regions)
 //        return AwsResourceFinderSNS().findIn(account, regions)
 //        AwsResourceFinderEC2().findIn(account, regions)+
 //                AwsResourceFinderLambda().findIn(account, regions)
@@ -37,4 +37,4 @@ class AwsFinderTest{
 //                AwsResourceFinderIAM().findIn(account, regions) +
 //                AwsResourceFinderSQS().findIn(account, regions)
     }
-}
+}/*
