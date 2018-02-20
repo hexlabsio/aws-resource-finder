@@ -45,9 +45,6 @@ class AwsResourceFinderAPIGateway(
         return apiRelationships + resourceRelationships + methodRelationships
     }
 
-//    data class MethodInfo(val methodType: String): AwsResource.Info
-//    data class APIInfo(val path: String): AwsResource.Info
-
 
     companion object {
         private fun apiArn(region: String, apiId: String) = AwsResource.Arn.from("arn:aws:apigateway:$region::/restapis/$apiId")
