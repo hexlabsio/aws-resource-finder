@@ -14,6 +14,9 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
     LOG_GROUP(AwsService.LOGS, "log-group", "LogGroup"),
     QUEUE(AwsService.SQS, "", "", arnSeparator = ""),
     TOPIC(AwsService.SNS, "", "Topic", arnSeparator = ""),
+    REST_API(AwsService.API_GATEWAY, "","RestApi", hasAccount = false, arnSeparator = ""),
+    API_RESOURCE(AwsService.API_GATEWAY, "", "Resource", hasAccount = false, arnSeparator = ""),
+    API_METHOD(AwsService.API_GATEWAY, "", "Method", hasAccount = false, arnSeparator = ""),
     BUCKET(AwsService.S3, "", "Bucket", arnSeparator = "", hasRegion = false, hasAccount = false);
 
     fun type() = "AWS::${service.type}::$type"
@@ -26,6 +29,7 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
         LOGS("logs", "Logs"),
         SQS("sqs", "SQS"),
         SNS("sns", "SNS"),
-        S3("s3", "S3")
+        S3("s3", "S3"),
+        API_GATEWAY("apigateway", "ApiGateway")
     }
 }
