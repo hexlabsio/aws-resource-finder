@@ -22,12 +22,12 @@ class AwsResourceFinderAPIGateway(
             .flatMap { it.second.items.map { item ->  Pair(it.first, item) } }
             .filter { it.second.resourceMethods != null }
 
-        val apiRelationships = resources
-            .groupBy { it.first.id }
-            .map { AwsResource.Relationships(
-                    AwsResource(apiArn(region, it.key), AwsResource.Info(it.value.first().first.name, AwsResourceType.REST_API.type(), emptyMap())),
-                    it.value.map { resource -> resourceArn(region, it.key, resource.second.id)}
-            )}
+//        val apiRelationships = resources
+//            .groupBy { it.first.id }
+//            .map { AwsResource.Relationships(
+//                    AwsResource(apiArn(region, it.key), AwsResource.Info(it.value.first().first.name, AwsResourceType.REST_API.type(), emptyMap())),
+//                    it.value.map { resource -> resourceArn(region, it.key, resource.second.id)}
+//            )}
 
 
         val resourceRelationships = resources
@@ -42,7 +42,7 @@ class AwsResourceFinderAPIGateway(
                     AwsResource(methodArn(region, it.first.id, it.second.first.id, it.second.second.value.httpMethod), AwsResource.Info(it.second.second.value.httpMethod, AwsResourceType.API_METHOD.type(), emptyMap())),
                     listOf(lambdaArnFromInvocationURI(it.second.second.value.methodIntegration.uri)))}
 
-        return apiRelationships + resourceRelationships + methodRelationships
+        return resourceRelationships + methodRelationships
     }
 
 
@@ -51,7 +51,7 @@ class AwsResourceFinderAPIGateway(
         private fun resourceArn(region: String, apiId: String, resourceId: String) = AwsResource.Arn.from(AwsResourceType.REST_API, region, "", "/restapis/$apiId/resources/$resourceId")
         private fun methodArn(region: String, apiId: String, resourceId: String, methodType: String) = AwsResource.Arn.from(AwsResourceType.REST_API, region, "", "/restapis/$apiId/resources/$resourceId/methods/$methodType")
         private fun lambdaArnFromInvocationURI(uri: String): AwsResource.Arn {
-            val lambdaArn = ("arn:aws:" + uri.substringAfterLast("arn:aws")).substringBefore("/invocations")
+            val lambdaArn = ("arn:aws" + uri.substringAfterLast("arn:aws")).substringBefore("/invocations")
             return AwsResource.Arn.from(lambdaArn)
         }
     }
