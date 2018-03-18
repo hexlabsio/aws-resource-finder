@@ -31,7 +31,7 @@ class AwsResourceFinderLambda(
     }
 
     private fun relatedArnsFor(function: FunctionConfiguration, region: String, account: String): List<AwsResource.Arn> = listOfNotNull(
-            function.role?.let { AwsResource.Arn.from(AwsResourceType.ROLE, region,account, it) },
+            function.role?.let { AwsResource.Arn.from(it) },
             function.kmsKeyArn?.let { AwsResource.Arn.from(function.kmsKeyArn) }
     ) + function.vpcConfig?.securityGroupIds.orEmpty().map { AwsResource.Arn.from(AwsResourceType.SECURITY_GROUP, region, account, it) }
 

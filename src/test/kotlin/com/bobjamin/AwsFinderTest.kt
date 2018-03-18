@@ -10,6 +10,7 @@ class AwsFinderTest{
        fun test(){
            val items = getList()
            val nodeTree = NodeBuilder.buildFrom(items)
+           val unlinkedNodes = nodeTree.nodes.filter { node -> nodeTree.links.find { it.uuidA == node.uuid || it.uuidB == node.uuid } == null }
            val relationshipGroups = nodeTree.links.map { it.uuidA to it.uuidB }.relatedGroups()
            val nodeTrees = relationshipGroups.map {
                val links = it.mapNotNull { pair ->
@@ -20,7 +21,9 @@ class AwsFinderTest{
                }.toSet().toList()
                NodeTree(nodes, links)
            }
-           val largeTrees = nodeTrees.filter { it.nodes.size >= 10 } +  nodeTrees.filter { it.nodes.size < 10 }.fold(NodeTree(emptyList(), emptyList())){acc, it -> NodeTree(acc.nodes + it.nodes, acc.links + it.links)}
+           val largeTrees = nodeTrees.filter { it.nodes.size >= 10 } +
+                   nodeTrees.filter { it.nodes.size < 10 }.fold(NodeTree(emptyList(), emptyList())){acc, it -> NodeTree(acc.nodes + it.nodes, acc.links + it.links)} +
+                   NodeTree(unlinkedNodes, emptyList())
            File("C:\\Code\\aws-resource-finder\\target\\groups2.json").writeText(jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(largeTrees))
     }
 
@@ -31,6 +34,7 @@ class AwsFinderTest{
     }
 
     fun finders() = listOf(
+            AwsResourceFinderDynamoDB(),
             AwsResourceFinderAPIGateway(),
             AwsResourceFinderSNS(),
             AwsResourceFinderSQS(),
