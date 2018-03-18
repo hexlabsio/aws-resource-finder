@@ -17,9 +17,10 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
     REST_API(AwsService.API_GATEWAY, "","RestApi", hasAccount = false, arnSeparator = ""),
     API_RESOURCE(AwsService.API_GATEWAY, "", "Resource", hasAccount = false, arnSeparator = ""),
     API_METHOD(AwsService.API_GATEWAY, "", "Method", hasAccount = false, arnSeparator = ""),
-    BUCKET(AwsService.S3, "", "Bucket", arnSeparator = "", hasRegion = false, hasAccount = false);
+    BUCKET(AwsService.S3, "", "Bucket", arnSeparator = "", hasRegion = false, hasAccount = false),
+    TABLE(AwsService.DYNAMODB,"table", "Table");
 
-    fun type() = "AWS::${service.type}::$type"
+    fun type() = "AWS::${service.type}::${if(type.isEmpty()) name else type}"
 
     enum class AwsService(val service: String, val type: String){
         EC2("ec2", "EC2"),
@@ -30,6 +31,7 @@ enum class AwsResourceType(val service: AwsService, val resource: String, val ty
         SQS("sqs", "SQS"),
         SNS("sns", "SNS"),
         S3("s3", "S3"),
-        API_GATEWAY("apigateway", "ApiGateway")
+        API_GATEWAY("apigateway", "ApiGateway"),
+        DYNAMODB("dynamodb", "DynamoDB")
     }
 }
