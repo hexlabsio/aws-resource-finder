@@ -24,12 +24,12 @@ class AwsFinderTest{
            val largeTrees = nodeTrees.filter { it.nodes.size >= 10 } +
                    nodeTrees.filter { it.nodes.size < 10 }.fold(NodeTree(emptyList(), emptyList())){acc, it -> NodeTree(acc.nodes + it.nodes, acc.links + it.links)} +
                    NodeTree(unlinkedNodes, emptyList())
-           File("C:\\Code\\aws-resource-finder\\target\\groups2.json").writeText(jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(largeTrees))
+           File("C:\\Code\\aws-resource-finder\\target\\groups.json").writeText(jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(largeTrees))
     }
 
     fun getList(): List<AwsResource.Relationships>{
         val account = PropertyFinder.get("ACCOUNT") ?: "--"
-        val regions = listOf("eu-west-1")
+        val regions = listOf("us-east-1")
         return finders().flatMap { it.findIn(account, regions) }
     }
 
