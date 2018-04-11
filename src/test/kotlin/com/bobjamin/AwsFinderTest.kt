@@ -34,6 +34,7 @@ class AwsFinderTest{
     }
 
     fun finders() = listOf(
+            AwsResourceFinderECS(),
             AwsResourceFinderDynamoDB(),
             AwsResourceFinderAPIGateway(),
             AwsResourceFinderSNS(),
