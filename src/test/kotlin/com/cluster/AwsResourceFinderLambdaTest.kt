@@ -19,13 +19,13 @@ class AwsResourceFinderLambdaTest{
                         .withTimeout(5)
                         .withRuntime("java")
                         .withKMSKeyArn(AwsResource.Arn.from(AwsResourceType.KEY,"region", "account", "key-1").arn())
-                        .withRole("role-1"),
+                        .withRole("arn:aws:iam:region:account:role/role-1"),
                 FunctionConfiguration()
                         .withFunctionArn(AwsResource.Arn.from(AwsResourceType.FUNCTION, "region", "account", "function-2").arn())
                         .withMemorySize(2046)
                         .withTimeout(10)
                         .withRuntime("node")
-                        .withRole("role-2")
+                        .withRole("arn:aws:iam:region:account:role/role-2")
         ))
         Mockito.`when`(lambdaClient.listFunctions(Mockito.any())).thenReturn(listFunctionsResult)
         val resources = AwsResourceFinderLambda({ lambdaClient }).findIn("a", listOf("us-east-1"))
@@ -40,7 +40,7 @@ class AwsResourceFinderLambdaTest{
 //               }
             }
             assertEquals(2, this.relatedArns.size)
-            assertEquals("arn:aws:iam:us-east-1:a:role/role-1", this.relatedArns[0].arn())
+            assertEquals("arn:aws:iam:region:account:role/role-1", this.relatedArns[0].arn())
             assertEquals("arn:aws:kms:region:account:key/key-1", this.relatedArns[1].arn())
         }
         with(resources[1]){
@@ -53,7 +53,7 @@ class AwsResourceFinderLambdaTest{
 //                }
             }
             assertEquals(1, this.relatedArns.size)
-            assertEquals("arn:aws:iam:us-east-1:a:role/role-2", this.relatedArns[0].arn())
+            assertEquals("arn:aws:iam:region:account:role/role-2", this.relatedArns[0].arn())
         }
     }
 }
