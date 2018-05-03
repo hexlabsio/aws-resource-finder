@@ -1,12 +1,10 @@
-package com.bobjamin
+package com.cluster
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.junit.Test
 import java.io.File
 
 class AwsFinderTest{
-       @Test
-
+      // @Test
        fun test(){
            val items = getList()
            val nodeTree = NodeBuilder.buildFrom(items)

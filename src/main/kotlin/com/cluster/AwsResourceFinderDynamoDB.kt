@@ -1,11 +1,8 @@
-package com.bobjamin
+package com.cluster
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.model.ListTablesRequest
-import com.amazonaws.services.ec2.AmazonEC2
-import com.amazonaws.services.ec2.AmazonEC2Client
-import com.amazonaws.services.ec2.model.*
 
 class AwsResourceFinderDynamoDB(
         private val dynamoDbClient: (region: String) -> AmazonDynamoDB = AwsConfigurator.regionClientFrom(AmazonDynamoDBClient.builder())

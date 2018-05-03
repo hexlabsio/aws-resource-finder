@@ -1,7 +1,5 @@
-package com.bobjamin
+package com.cluster
 
-import com.amazonaws.services.ec2.model.Instance
-import com.amazonaws.services.ec2.model.Volume
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient
 import com.amazonaws.services.identitymanagement.model.GetRolePolicyRequest

@@ -1,11 +1,11 @@
-package com.bobjamin
+package com.cluster
 
 import com.amazonaws.services.ecs.AmazonECS
 import com.amazonaws.services.ecs.AmazonECSClient
 import com.amazonaws.services.ecs.model.DescribeContainerInstancesRequest
 import com.amazonaws.services.ecs.model.ListClustersRequest
 import com.amazonaws.services.ecs.model.ListContainerInstancesRequest
-import com.bobjamin.AwsResource.Finder.Companion.clientCall
+import com.cluster.AwsResource.Finder.Companion.clientCall
 
 class AwsResourceFinderECS(
         private val ecsClient: (region: String) -> AmazonECS = AwsConfigurator.regionClientFrom(AmazonECSClient.builder())

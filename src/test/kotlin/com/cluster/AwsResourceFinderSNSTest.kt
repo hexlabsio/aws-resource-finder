@@ -1,4 +1,4 @@
-package com.bobjamin
+package com.cluster
 
 import com.amazonaws.services.sns.AmazonSNS
 import com.amazonaws.services.sns.model.*

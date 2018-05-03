@@ -1,4 +1,4 @@
-package com.bobjamin
+package com.cluster
 
 import com.amazonaws.services.kms.AWSKMS
 import com.amazonaws.services.kms.AWSKMSClient

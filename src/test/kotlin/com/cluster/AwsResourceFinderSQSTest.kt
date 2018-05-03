@@ -1,4 +1,4 @@
-package com.bobjamin
+package com.cluster
 
 import com.amazonaws.services.sqs.AmazonSQS
 import com.amazonaws.services.sqs.model.ListQueuesResult

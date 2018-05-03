@@ -1,11 +1,8 @@
-package com.bobjamin
+package com.cluster
 
 import com.amazonaws.services.kms.AWSKMS
 import com.amazonaws.services.kms.model.KeyListEntry
 import com.amazonaws.services.kms.model.ListKeysResult
-import com.amazonaws.services.lambda.AWSLambda
-import com.amazonaws.services.lambda.model.FunctionConfiguration
-import com.amazonaws.services.lambda.model.ListFunctionsResult
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.mockito.Mockito

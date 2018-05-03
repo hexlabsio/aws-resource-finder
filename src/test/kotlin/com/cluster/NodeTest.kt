@@ -1,4 +1,4 @@
-package com.bobjamin
+package com.cluster
 
 import junit.framework.TestCase.assertEquals
 import org.junit.Test

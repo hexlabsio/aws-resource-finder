@@ -1,4 +1,4 @@
-package com.bobjamin
+package com.cluster
 
 
 enum class AwsResourceType(val service: AwsService, val resource: String, val type: String, val arnSeparator: String = "/", val hasRegion: Boolean = true, val hasAccount: Boolean = true){

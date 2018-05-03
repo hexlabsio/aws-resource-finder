@@ -1,4 +1,4 @@
-package com.bobjamin
+package com.cluster
 
 import com.amazonaws.ClientConfiguration
 import com.amazonaws.auth.EnvironmentVariableCredentialsProvider

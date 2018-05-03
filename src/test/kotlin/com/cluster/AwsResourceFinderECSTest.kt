@@ -1,4 +1,4 @@
-package com.bobjamin
+package com.cluster
 
 import com.amazonaws.services.ecs.AmazonECS
 import com.amazonaws.services.ecs.model.*
