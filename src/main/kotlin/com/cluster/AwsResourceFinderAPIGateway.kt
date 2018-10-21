@@ -22,13 +22,6 @@ class AwsResourceFinderAPIGateway(
             .flatMap { it.second.items.map { item ->  Pair(it.first, item) } }
             .filter { it.second.resourceMethods != null }
 
-//        val apiRelationships = resources
-//            .groupBy { it.first.id }
-//            .map { AwsResource.Relationships(
-//                    AwsResource(apiArn(region, it.key), AwsResource.Info(it.value.first().first.name, AwsResourceType.REST_API.type(), emptyMap())),
-//                    it.value.map { resource -> resourceArn(region, it.key, resource.second.id)}
-//            )}
-
 
         val resourceRelationships = resources
             .map { AwsResource.Relationships (AwsResource(resourceArn(region, it.first.id, it.second.id), AwsResource.Info(it.second.path, AwsResourceType.API_RESOURCE.type(), emptyMap())),
@@ -37,7 +30,7 @@ class AwsResourceFinderAPIGateway(
 
         val methodRelationships = resources
             .flatMap { it.second.resourceMethods.map { method -> Pair(it.first, Pair(it.second, method)) } }
-            .filter { it.second.second.value.methodIntegration.type == "AWS_PROXY" }
+            .filter { it.second.second.value.methodIntegration?.type == "AWS_PROXY" }
             .map { AwsResource.Relationships(
                     AwsResource(methodArn(region, it.first.id, it.second.first.id, it.second.second.value.httpMethod), AwsResource.Info(it.second.second.value.httpMethod, AwsResourceType.API_METHOD.type(), emptyMap())),
                     listOf(lambdaArnFromInvocationURI(it.second.second.value.methodIntegration.uri)))}

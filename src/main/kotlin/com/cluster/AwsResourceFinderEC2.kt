@@ -69,7 +69,10 @@ class AwsResourceFinderEC2(
 
     private fun relatedArnsFor(instance: Instance, region: String, account: String): List<AwsResource.Arn> = listOfNotNull(
             if(instance.imageId != null) AwsResource.Arn.from(AwsResourceType.IMAGE, region,account,instance.imageId) else null,
-            if(instance.iamInstanceProfile != null) AwsResource.Arn.from(instance.iamInstanceProfile.arn) else null
+            if(instance.iamInstanceProfile != null) {
+
+                AwsResource.Arn.from(instance.iamInstanceProfile.arn)
+            } else null
     ) + instance.securityGroups.map { AwsResource.Arn.from(AwsResourceType.SECURITY_GROUP, region, account, it.groupId) }
 
     private fun relatedArnsFor(volume: Volume, region: String, account: String): List<AwsResource.Arn> = listOfNotNull(
@@ -91,7 +94,7 @@ class AwsResourceFinderEC2(
         )
     }
     fun sizeFrom(instanceType: String): Double{
-        return when{
+        return 1 + when{
             instanceType.contains("2xlarge") -> 1.0
             instanceType.contains("xlarge") -> 0.8
             instanceType.contains("large") -> 0.6
@@ -100,7 +103,7 @@ class AwsResourceFinderEC2(
         }
     }
     fun sizeFrom(volumeSize: Int): Double{
-        return when{
+        return 1 + when{
             volumeSize > 1000 -> 1.0
             else -> volumeSize / 1000.0
         }
